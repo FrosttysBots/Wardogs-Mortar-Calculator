@@ -225,6 +225,31 @@ details[open] summary:before{content:"▾"}
   color:#77838a;font-size:11px;line-height:1.7;
 }
 
+.info-panel{
+  margin-top:16px;
+  padding:18px 20px;
+  display:flex;align-items:center;justify-content:space-between;gap:22px;
+  border:1px solid rgba(93,107,118,.52);border-radius:10px;
+  background:linear-gradient(145deg,rgba(12,17,21,.92),rgba(7,11,14,.90));
+  box-shadow:0 12px 40px rgba(0,0,0,.34);
+}
+.info-copy{min-width:0}
+.info-title{
+  margin:0 0 7px;color:var(--gold2);
+  font-size:11px;font-weight:950;letter-spacing:.16em;
+}
+.info-text{
+  margin:0;color:#9aa4aa;font-size:11px;line-height:1.65;
+}
+.source-link{
+  flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+  min-height:40px;padding:0 15px;border:1px solid #9b731c;border-radius:7px;
+  background:linear-gradient(180deg,#17150f,#10110f);
+  color:var(--gold2);text-decoration:none;white-space:nowrap;
+  font-size:10px;font-weight:950;letter-spacing:.08em;
+}
+.source-link:hover{background:rgba(227,170,45,.13);border-color:var(--gold2)}
+
 .footer{
   margin-top:32px;text-align:center;color:#d3d6d7;
   font-size:10px;font-weight:800;letter-spacing:.35em;
@@ -294,6 +319,9 @@ details[open] summary:before{content:"▾"}
   .paste{width:88px}.distance{font-size:45px}
   .footer:before,.footer:after{width:32px;margin:0 7px}
   .saved-item{grid-template-columns:1fr}.saved-distance{justify-self:end}
+
+  .info-panel{align-items:flex-start;flex-direction:column;padding:16px}
+  .source-link{width:100%}
 }
 </style>
 </head>
@@ -359,6 +387,17 @@ details[open] summary:before{content:"▾"}
       <div id="savedList" class="saved-list"></div>
     </aside>
   </div>
+
+
+  <section class="info-panel" aria-label="About and disclaimer">
+    <div class="info-copy">
+      <h2 class="info-title">ABOUT / DISCLAIMER</h2>
+      <p class="info-text">
+        This is a fan-made, independent Wardogs community tool. The idea for this website was inspired by the mortar/artillery calculation method shown in the original creator's video. This site is not affiliated with, sponsored by, or endorsed by Wardogs or the video's creator. Always verify firing solutions in-game.
+      </p>
+    </div>
+    <a class="source-link" href="https://www.youtube.com/watch?v=9X8U-eHCMgI" target="_blank" rel="noopener noreferrer">▶ WATCH ORIGINAL VIDEO</a>
+  </section>
 
   <footer class="footer">WARDOGS • TACTICAL ALL OUT WARFARE</footer>
 </div>

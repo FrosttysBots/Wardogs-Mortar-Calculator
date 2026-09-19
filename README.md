@@ -29,3 +29,11 @@ The player only types the number. The website automatically displays the directi
 - Paste buttons use the Clipboard API on HTTPS/GitHub Pages with Ctrl+V fallback.
 - Named saved calculations persist in the browser.
 - Load, edit, delete, and clear-all controls.
+
+
+## v5 changes
+- Added a compact About / Disclaimer section beneath the calculator.
+- Credits the original mortar/artillery calculation video as the inspiration for the website.
+- Added a direct **Watch Original Video** button.
+- Clarifies that the site is a fan-made independent community tool and is not affiliated with or endorsed by Wardogs or the video's creator.
+- Original video: https://www.youtube.com/watch?v=9X8U-eHCMgI
