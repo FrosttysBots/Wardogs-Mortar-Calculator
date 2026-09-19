@@ -1,0 +1,872 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0d0f">
+  <title>Wardogs Mortar Calculator</title>
+  <meta name="description" content="Wardogs mortar and artillery distance calculator.">
+  <style>
+    :root{
+      --gold:#d9ad42;
+      --gold-bright:#f0c65c;
+      --gold-soft:rgba(217,173,66,.14);
+      --bg:#080a0c;
+      --panel:rgba(10,12,14,.84);
+      --panel-2:rgba(17,20,23,.92);
+      --line:rgba(255,255,255,.13);
+      --line-strong:rgba(217,173,66,.42);
+      --text:#f2f2ef;
+      --muted:#9ea4a9;
+      --success:#65d69a;
+      --danger:#e87979;
+      --shadow:0 24px 80px rgba(0,0,0,.48);
+    }
+
+    *{box-sizing:border-box}
+    html{color-scheme:dark}
+    body{
+      margin:0;
+      min-width:320px;
+      min-height:100vh;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--text);
+      background:var(--bg);
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-20px;
+      z-index:-3;
+      background:
+        linear-gradient(rgba(5,7,8,.76),rgba(5,7,8,.88)),
+        url("wardogs-background.jpg") center/cover no-repeat;
+      filter:blur(7px);
+      transform:scale(1.04);
+    }
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      z-index:-2;
+      pointer-events:none;
+      background:
+        radial-gradient(circle at 70% 15%,rgba(217,173,66,.16),transparent 34%),
+        linear-gradient(90deg,rgba(0,0,0,.34),transparent 50%,rgba(0,0,0,.28));
+    }
+
+    button,input{font:inherit}
+    button{cursor:pointer}
+    button:focus-visible,input:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+
+    .site{
+      width:min(1180px,calc(100% - 28px));
+      margin:0 auto;
+      padding:34px 0 45px;
+    }
+
+    .brand{
+      text-align:center;
+      margin-bottom:24px;
+    }
+    .brand-kicker{
+      color:var(--gold-bright);
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.3em;
+      text-transform:uppercase;
+    }
+    .brand h1{
+      margin:9px 0 0;
+      font-size:clamp(31px,5vw,52px);
+      line-height:1;
+      letter-spacing:-.045em;
+      font-weight:900;
+    }
+    .brand p{
+      max-width:570px;
+      margin:11px auto 0;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);
+      gap:16px;
+      align-items:start;
+    }
+
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:20px;
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+      overflow:hidden;
+    }
+
+    .panel-inner{padding:22px}
+    .panel-title{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin:0 0 18px;
+      font-size:14px;
+      font-weight:800;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+    }
+    .panel-title .icon{
+      display:grid;
+      place-items:center;
+      width:32px;
+      height:32px;
+      border:1px solid var(--line-strong);
+      border-radius:9px;
+      color:var(--gold-bright);
+      background:var(--gold-soft);
+      font-size:16px;
+    }
+
+    .field{margin-bottom:17px}
+    .field-label{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:7px;
+      color:var(--muted);
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+    }
+    .detected{
+      color:var(--success);
+      font-size:10px;
+      letter-spacing:.02em;
+      text-transform:none;
+    }
+    .input-row{display:flex;gap:8px}
+    .coord-input{
+      min-width:0;
+      width:100%;
+      height:52px;
+      padding:0 15px;
+      color:var(--text);
+      background:rgba(0,0,0,.3);
+      border:1px solid var(--line);
+      border-radius:12px;
+      font-size:17px;
+    }
+    .coord-input::placeholder{color:#70767b}
+    .coord-input:focus{
+      border-color:var(--gold);
+      box-shadow:0 0 0 3px var(--gold-soft);
+      outline:none;
+    }
+
+    .btn{
+      min-height:44px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      color:var(--text);
+      background:rgba(255,255,255,.055);
+      font-weight:750;
+      transition:.15s ease;
+    }
+    .btn:hover{background:rgba(255,255,255,.1)}
+    .paste{
+      height:52px;
+      padding:0 17px;
+      flex:0 0 auto;
+      border-color:var(--line-strong);
+      color:var(--gold-bright);
+      background:rgba(217,173,66,.07);
+      text-transform:uppercase;
+      font-size:11px;
+      letter-spacing:.08em;
+    }
+    .paste:hover{background:rgba(217,173,66,.14)}
+
+    .result{
+      margin-top:21px;
+      padding:22px 16px;
+      border:1px solid var(--line-strong);
+      border-radius:16px;
+      text-align:center;
+      background:
+        radial-gradient(circle at 50% 0%,rgba(217,173,66,.12),transparent 60%),
+        rgba(0,0,0,.25);
+    }
+    .result-label{
+      color:var(--muted);
+      font-size:10px;
+      font-weight:800;
+      letter-spacing:.2em;
+      text-transform:uppercase;
+    }
+    .result-number{
+      margin-top:7px;
+      font-size:clamp(42px,7vw,66px);
+      line-height:1;
+      font-weight:900;
+      letter-spacing:-.055em;
+    }
+    .result-unit{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:14px;
+      font-weight:700;
+    }
+    .status{
+      margin-top:9px;
+      color:var(--muted);
+      font-size:11px;
+    }
+    .status.ready{color:var(--success)}
+
+    .details{
+      margin-top:12px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      overflow:hidden;
+    }
+    .details summary{
+      padding:13px 14px;
+      color:#c9cdd0;
+      cursor:pointer;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+    }
+    .details-body{
+      padding:0 14px 14px;
+      border-top:1px solid var(--line);
+      color:var(--muted);
+      font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+      font-size:12px;
+      line-height:1.7;
+    }
+    .details-body strong{color:var(--text)}
+
+    .save-main{
+      width:100%;
+      height:48px;
+      margin-top:12px;
+      border:1px solid var(--gold);
+      border-radius:11px;
+      color:#19140a;
+      background:linear-gradient(180deg,#e7b83f,#c99728);
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.09em;
+      text-transform:uppercase;
+    }
+    .save-main:hover{filter:brightness(1.07)}
+
+    .saved-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .saved-title{
+      margin:0;
+      font-size:14px;
+      font-weight:850;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+    }
+    .clear{
+      border:0;
+      background:transparent;
+      color:var(--muted);
+      padding:7px;
+      font-size:11px;
+      font-weight:700;
+    }
+    .clear:hover{color:var(--danger)}
+
+    .saved-list{display:grid;gap:8px}
+    .empty{
+      padding:24px 14px;
+      border:1px dashed var(--line);
+      border-radius:12px;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+    }
+    .saved-item{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:12px;
+      padding:14px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:rgba(255,255,255,.035);
+      transition:.15s ease;
+    }
+    .saved-item:hover{border-color:rgba(217,173,66,.35);background:rgba(217,173,66,.045)}
+    .saved-name{
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      font-size:13px;
+      font-weight:800;
+    }
+    .saved-coords{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:10px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .saved-bottom{
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:9px;
+      margin-top:8px;
+    }
+    .bearing{
+      color:var(--gold-bright);
+      font-size:11px;
+      font-weight:800;
+    }
+    .saved-distance{
+      color:var(--text);
+      font-size:14px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    .saved-actions{
+      display:flex;
+      align-items:center;
+      gap:5px;
+    }
+    .small-btn{
+      min-width:38px;
+      height:38px;
+      padding:0 9px;
+      border:1px solid var(--line);
+      border-radius:9px;
+      background:rgba(255,255,255,.045);
+      color:var(--muted);
+      font-size:11px;
+      font-weight:750;
+    }
+    .small-btn:hover{color:var(--text);background:rgba(255,255,255,.09)}
+    .small-btn.delete:hover{color:var(--danger);border-color:rgba(232,121,121,.35)}
+
+    .footer{
+      margin-top:17px;
+      color:var(--muted);
+      text-align:center;
+      font-size:10px;
+    }
+
+    /* Modal */
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      z-index:50;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      background:rgba(0,0,0,.72);
+      backdrop-filter:blur(5px);
+    }
+    .modal-backdrop.open{display:flex}
+    .modal{
+      width:min(450px,100%);
+      padding:22px;
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:17px;
+      background:var(--panel-2);
+      box-shadow:0 30px 100px rgba(0,0,0,.6);
+    }
+    .modal-head{
+      display:flex;
+      justify-content:space-between;
+      gap:15px;
+      align-items:flex-start;
+    }
+    .modal-title{font-size:19px;font-weight:850}
+    .modal-desc{margin-top:5px;color:var(--muted);font-size:12px;line-height:1.5}
+    .close{
+      width:34px;height:34px;
+      border:1px solid var(--line);
+      border-radius:8px;
+      background:rgba(255,255,255,.045);
+      color:var(--muted);
+      font-size:20px;
+    }
+    .modal-field{margin-top:18px}
+    .modal-field label{
+      display:block;
+      margin-bottom:7px;
+      color:var(--muted);
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+    }
+    .required{color:var(--gold-bright)}
+    .optional{font-weight:500;text-transform:none;letter-spacing:0}
+    .modal-input{
+      width:100%;
+      height:47px;
+      padding:0 13px;
+      color:var(--text);
+      background:rgba(0,0,0,.28);
+      border:1px solid var(--line);
+      border-radius:10px;
+      outline:none;
+    }
+    .modal-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft)}
+    .modal-actions{display:flex;gap:9px;margin-top:20px}
+    .cancel,.confirm{flex:1;height:44px;border-radius:10px;font-size:12px;font-weight:800}
+    .cancel{background:rgba(255,255,255,.05)}
+    .confirm{border-color:var(--gold);background:var(--gold);color:#18130a}
+    .confirm:hover{background:var(--gold-bright)}
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:22px;
+      z-index:100;
+      transform:translate(-50%,15px);
+      opacity:0;
+      pointer-events:none;
+      padding:11px 15px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:#15181b;
+      color:var(--text);
+      box-shadow:0 15px 40px rgba(0,0,0,.45);
+      font-size:12px;
+      font-weight:700;
+      transition:.18s ease;
+    }
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+
+    @media(max-width:860px){
+      .layout{grid-template-columns:1fr}
+    }
+    @media(max-width:520px){
+      .site{width:min(100% - 18px,1180px);padding-top:20px}
+      .panel-inner{padding:16px}
+      .paste{padding:0 13px}
+      .saved-item{grid-template-columns:minmax(0,1fr)}
+      .saved-actions{justify-content:flex-end}
+    }
+  </style>
+</head>
+<body>
+  <div class="site">
+    <header class="brand">
+      <div class="brand-kicker">Wardogs • Tactical Helper</div>
+      <h1>Mortar Calculator</h1>
+      <p>Paste your Wardogs coordinates and get the firing distance instantly.</p>
+    </header>
+
+    <div class="layout">
+      <section class="panel">
+        <div class="panel-inner">
+          <h2 class="panel-title"><span class="icon">⌖</span> Firing Solution</h2>
+
+          <div class="field">
+            <label class="field-label" for="player">
+              Player / Mortar Location
+              <span class="detected" id="playerStatus"></span>
+            </label>
+            <div class="input-row">
+              <input id="player" class="coord-input" autocomplete="off" spellcheck="false" placeholder="x91, y100" aria-label="Player or mortar coordinates">
+              <button class="btn paste" type="button" data-target="player">📋 Paste</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="target">
+              Target Location
+              <span class="detected" id="targetStatus"></span>
+            </label>
+            <div class="input-row">
+              <input id="target" class="coord-input" autocomplete="off" spellcheck="false" placeholder="x300, y60" aria-label="Target coordinates">
+              <button class="btn paste" type="button" data-target="target">📋 Paste</button>
+            </div>
+          </div>
+
+          <div class="result" aria-live="polite">
+            <div class="result-label">Distance to Target</div>
+            <div class="result-number" id="distance">—</div>
+            <div class="result-unit" id="unit"></div>
+            <div class="status" id="status">Enter both coordinates to calculate</div>
+          </div>
+
+          <details class="details">
+            <summary>View calculation details</summary>
+            <div class="details-body" id="detailsBody">
+              Enter valid coordinates to see the calculation.
+            </div>
+          </details>
+
+          <button class="save-main" id="saveButton" type="button">🔖 Save Calculation</button>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <div class="panel-inner">
+          <div class="saved-head">
+            <h2 class="saved-title">Saved Calculations</h2>
+            <button class="clear" id="clearAll" type="button">Clear All</button>
+          </div>
+          <div class="saved-list" id="savedList"></div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="footer">Saved calculations stay on this device in your browser.</div>
+  </div>
+
+  <div class="modal-backdrop" id="saveModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <div class="modal-title" id="modalTitle">Save Calculation</div>
+          <div class="modal-desc">Name this target so you can quickly find and reload it later.</div>
+        </div>
+        <button class="close" id="closeModal" type="button" aria-label="Close dialog">×</button>
+      </div>
+
+      <div class="modal-field">
+        <label for="saveName">Calculation Name <span class="required">*</span></label>
+        <input id="saveName" class="modal-input" maxlength="60" autocomplete="off" placeholder="e.g. Enemy Outpost">
+      </div>
+
+      <div class="modal-field">
+        <label for="saveBearing">Cardinal Direction / Bearing <span class="optional">(Optional)</span></label>
+        <input id="saveBearing" class="modal-input" maxlength="25" autocomplete="off" placeholder="e.g. 250 W">
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn cancel" id="cancelSave" type="button">Cancel</button>
+        <button class="btn confirm" id="confirmSave" type="button">Save Target</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const STORAGE_KEY = "wardogs-mortar-calculations-v1";
+
+      const $ = (id) => document.getElementById(id);
+      const playerInput = $("player");
+      const targetInput = $("target");
+      const playerStatus = $("playerStatus");
+      const targetStatus = $("targetStatus");
+      const distanceEl = $("distance");
+      const unitEl = $("unit");
+      const statusEl = $("status");
+      const detailsEl = $("detailsBody");
+      const modal = $("saveModal");
+      const saveName = $("saveName");
+      const saveBearing = $("saveBearing");
+      const savedList = $("savedList");
+      const toast = $("toast");
+
+      let currentCalculation = null;
+      let savedCalculations = loadSaved();
+      let toastTimer = null;
+
+      function parseCoordinates(value) {
+        // Wardogs example: "x91, y100"
+        // We intentionally ignore x/y and extract the first two numbers.
+        const matches = String(value).match(/[-+]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)/g);
+        if (!matches || matches.length < 2) return null;
+
+        const x = Number(matches[0]);
+        const y = Number(matches[1]);
+
+        if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+        return { x, y };
+      }
+
+      function calculate() {
+        const player = parseCoordinates(playerInput.value);
+        const target = parseCoordinates(targetInput.value);
+
+        playerStatus.textContent = player ? "✓ Coordinates detected" : "";
+        targetStatus.textContent = target ? "✓ Coordinates detected" : "";
+
+        if (!player || !target) {
+          currentCalculation = null;
+          distanceEl.textContent = "—";
+          unitEl.textContent = "";
+          statusEl.textContent = "Enter both coordinates to calculate";
+          statusEl.classList.remove("ready");
+          detailsEl.textContent = "Enter valid coordinates to see the calculation.";
+          return;
+        }
+
+        const dx = target.x - player.x;
+        const dy = target.y - player.y;
+        const dxSquared = dx * dx;
+        const dySquared = dy * dy;
+        const coordinateDistance = Math.sqrt(dxSquared + dySquared);
+        const meters = coordinateDistance * 100;
+
+        currentCalculation = {
+          player,
+          target,
+          dx,
+          dy,
+          dxSquared,
+          dySquared,
+          coordinateDistance,
+          meters
+        };
+
+        distanceEl.textContent = Math.round(meters).toLocaleString();
+        unitEl.textContent = "meters";
+        statusEl.textContent = "✓ Ready to fire";
+        statusEl.classList.add("ready");
+
+        detailsEl.innerHTML = [
+          `<div>ΔX = <strong>${formatNumber(Math.abs(dx))}</strong></div>`,
+          `<div>ΔY = <strong>${formatNumber(Math.abs(dy))}</strong></div>`,
+          `<div>√(${formatNumber(dxSquared)} + ${formatNumber(dySquared)}) = <strong>${coordinateDistance.toFixed(3)}</strong></div>`,
+          `<div>${coordinateDistance.toFixed(3)} × 100 = <strong>${meters.toFixed(1)} m</strong></div>`
+        ].join("");
+      }
+
+      function formatNumber(value) {
+        return Number(value).toLocaleString(undefined, {
+          maximumFractionDigits: 4
+        });
+      }
+
+      async function pasteInto(targetId) {
+        const target = $(targetId);
+
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            const text = await navigator.clipboard.readText();
+            if (text) {
+              target.value = text.trim();
+              calculate();
+              target.focus();
+              showToast("Coordinates pasted");
+              return;
+            }
+          }
+        } catch (_) {
+          // Fall through to selecting the field.
+        }
+
+        target.focus();
+        target.select();
+        showToast("Clipboard access unavailable — paste with Ctrl+V");
+      }
+
+      function openSaveModal() {
+        if (!currentCalculation) {
+          showToast("Enter valid coordinates before saving");
+          return;
+        }
+
+        saveName.value = "";
+        saveBearing.value = "";
+        modal.classList.add("open");
+        saveName.focus();
+      }
+
+      function closeSaveModal() {
+        modal.classList.remove("open");
+      }
+
+      function saveCurrent() {
+        const name = saveName.value.trim();
+
+        if (!name) {
+          saveName.focus();
+          showToast("Give the calculation a name");
+          return;
+        }
+
+        const entry = {
+          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+          name,
+          bearing: saveBearing.value.trim(),
+          player: currentCalculation.player,
+          target: currentCalculation.target,
+          meters: currentCalculation.meters,
+          createdAt: Date.now()
+        };
+
+        savedCalculations.unshift(entry);
+        persistSaved();
+        renderSaved();
+        closeSaveModal();
+        showToast("Calculation saved");
+      }
+
+      function renderSaved() {
+        if (!savedCalculations.length) {
+          savedList.innerHTML = `
+            <div class="empty">
+              No saved calculations yet.<br>
+              Save a target to quickly reference it later.
+            </div>
+          `;
+          return;
+        }
+
+        savedList.innerHTML = savedCalculations.map((item) => `
+          <article class="saved-item">
+            <div>
+              <div class="saved-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div>
+              <div class="saved-coords">
+                x${formatNumber(item.player.x)}, y${formatNumber(item.player.y)}
+                → x${formatNumber(item.target.x)}, y${formatNumber(item.target.y)}
+              </div>
+              <div class="saved-bottom">
+                ${item.bearing ? `<span class="bearing">▸ ${escapeHtml(item.bearing)}</span>` : ""}
+              </div>
+            </div>
+            <div>
+              <div class="saved-distance">${Math.round(item.meters).toLocaleString()} m</div>
+              <div class="saved-actions">
+                <button class="small-btn" type="button" data-load="${item.id}">Load</button>
+                <button class="small-btn delete" type="button" data-delete="${item.id}" aria-label="Delete ${escapeHtml(item.name)}">Delete</button>
+              </div>
+            </div>
+          </article>
+        `).join("");
+      }
+
+      function loadCalculation(id) {
+        const item = savedCalculations.find((entry) => entry.id === id);
+        if (!item) return;
+
+        playerInput.value = `x${item.player.x}, y${item.player.y}`;
+        targetInput.value = `x${item.target.x}, y${item.target.y}`;
+        calculate();
+        showToast(`Loaded "${item.name}"`);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function deleteCalculation(id) {
+        savedCalculations = savedCalculations.filter((entry) => entry.id !== id);
+        persistSaved();
+        renderSaved();
+        showToast("Calculation deleted");
+      }
+
+      function clearAll() {
+        if (!savedCalculations.length) return;
+        if (!window.confirm("Delete all saved calculations?")) return;
+
+        savedCalculations = [];
+        persistSaved();
+        renderSaved();
+        showToast("All saved calculations cleared");
+      }
+
+      function loadSaved() {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (_) {
+          return [];
+        }
+      }
+
+      function persistSaved() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(savedCalculations));
+        } catch (_) {
+          showToast("Could not save to this browser");
+        }
+      }
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, (char) => ({
+          "&":"&amp;",
+          "<":"&lt;",
+          ">":"&gt;",
+          "\"":"&quot;",
+          "'":"&#039;"
+        }[char]));
+      }
+
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
+      }
+
+      document.querySelectorAll(".paste").forEach((button) => {
+        button.addEventListener("click", () => pasteInto(button.dataset.target));
+      });
+
+      playerInput.addEventListener("input", calculate);
+      targetInput.addEventListener("input", calculate);
+
+      $("saveButton").addEventListener("click", openSaveModal);
+      $("closeModal").addEventListener("click", closeSaveModal);
+      $("cancelSave").addEventListener("click", closeSaveModal);
+      $("confirmSave").addEventListener("click", saveCurrent);
+      $("clearAll").addEventListener("click", clearAll);
+
+      modal.addEventListener("click", (event) => {
+        if (event.target === modal) closeSaveModal();
+      });
+
+      saveName.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          saveBearing.focus();
+        }
+      });
+
+      saveBearing.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          saveCurrent();
+        }
+      });
+
+      savedList.addEventListener("click", (event) => {
+        const loadButton = event.target.closest("[data-load]");
+        const deleteButton = event.target.closest("[data-delete]");
+
+        if (loadButton) loadCalculation(loadButton.dataset.load);
+        if (deleteButton) deleteCalculation(deleteButton.dataset.delete);
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && modal.classList.contains("open")) {
+          closeSaveModal();
+        }
+      });
+
+      renderSaved();
+      calculate();
+    })();
+  </script>
+</body>
+</html>
