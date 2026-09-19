@@ -1,20 +1,20 @@
-# Wardogs Mortar Calculator
+# Wardogs Mortar Calculator v3
 
-Static GitHub Pages-ready website.
+GitHub Pages-ready static website.
 
-## Fixed in this version
-- Coordinate parser correctly reads numeric values from `x91, y100`.
-- Automatic Pythagorean distance calculation.
-- Paste button uses the Clipboard API on HTTPS and gives a Ctrl+V fallback when the browser blocks clipboard access.
-- Named saved calculations.
-- Optional cardinal direction / bearing.
-- Saved calculations persist with browser localStorage.
-- Load, edit, and delete saved calculations.
-- Layout styled to match the supplied Wardogs reference screenshot.
-- Blurred Wardogs background.
+## Important fixes
+- Uses a new localStorage key so old prototype data cannot break the calculator.
+- Calculates immediately on page load and whenever either coordinate field changes.
+- Robustly parses `x91, y100`, `X:91 Y:100`, `91,100`, etc.
+- Example `x91, y100` -> `x80, y100` outputs `1,100 m`.
+- Paste buttons use the browser Clipboard API on HTTPS (GitHub Pages) and provide Ctrl+V fallback.
+- Named saved calculations with optional cardinal direction/bearing.
+- Saved calculations persist in the browser.
+- Load, edit, delete, and clear-all controls.
+- Styling follows the supplied Wardogs reference image.
 
 ## GitHub Pages
-Upload `index.html` and `wardogs-background.jpg` to the root of a GitHub repository, then enable:
-Settings -> Pages -> Deploy from a branch -> main -> / (root).
+Upload `index.html` and `wardogs-background.jpg` to the root of the repository.
+Then use Settings -> Pages -> Deploy from a branch -> main -> / (root).
 
-The site should be served over HTTPS by GitHub Pages, which allows the Paste button to request clipboard access.
+If the old site appears after updating, use Ctrl+F5 once to force-refresh the page.
