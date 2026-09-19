@@ -1,20 +1,31 @@
-# Wardogs Mortar Calculator v3
+# Wardogs Mortar Calculator v4
 
 GitHub Pages-ready static website.
 
-## Important fixes
-- Uses a new localStorage key so old prototype data cannot break the calculator.
-- Calculates immediately on page load and whenever either coordinate field changes.
-- Robustly parses `x91, y100`, `X:91 Y:100`, `91,100`, etc.
-- Example `x91, y100` -> `x80, y100` outputs `1,100 m`.
-- Paste buttons use the browser Clipboard API on HTTPS (GitHub Pages) and provide Ctrl+V fallback.
-- Named saved calculations with optional cardinal direction/bearing.
-- Saved calculations persist in the browser.
+## Bearing update
+The save dialog now asks for the **numeric bearing only**.
+
+Examples:
+- `250` -> `250° W`
+- `295` -> `295° NW`
+- `063` -> `063° NE`
+
+Compass sectors:
+- 337.5°–359.9° / 0°–22.4° = N
+- 22.5°–67.4° = NE
+- 67.5°–112.4° = E
+- 112.5°–157.4° = SE
+- 157.5°–202.4° = S
+- 202.5°–247.4° = SW
+- 247.5°–292.4° = W
+- 292.5°–337.4° = NW
+
+The player only types the number. The website automatically displays the direction.
+
+## Calculator
+- Parses `x91, y100`, `X:91 Y:100`, `91,100`, etc.
+- Calculates distance automatically.
+- Uses `sqrt(dx² + dy²) × 100`.
+- Paste buttons use the Clipboard API on HTTPS/GitHub Pages with Ctrl+V fallback.
+- Named saved calculations persist in the browser.
 - Load, edit, delete, and clear-all controls.
-- Styling follows the supplied Wardogs reference image.
-
-## GitHub Pages
-Upload `index.html` and `wardogs-background.jpg` to the root of the repository.
-Then use Settings -> Pages -> Deploy from a branch -> main -> / (root).
-
-If the old site appears after updating, use Ctrl+F5 once to force-refresh the page.
